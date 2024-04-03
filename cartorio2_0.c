@@ -135,7 +135,8 @@ int main()
         printf("Escolha a opção que você deseja:\n\n");
         printf("\t1- Registro de nomes\n");
         printf("\t2- Consulta de nomes\n");
-        printf("\t3- Deletar nomes\n\n\n");
+        printf("\t3- Deletar nomes\n");
+        printf("\t4- Sair do sistema\n\n");
         printf("Digite a opção desejada: ");
         
         scanf("%d", &opcao); // Lê a opção do usuário
@@ -156,6 +157,10 @@ int main()
                 printf("Você selecionou a opção de deletar nomes!\n");
                 deletar(); // Chama a função de deletar
                 break;
+            case 4:
+            	printf("Obrigado por ultilizar o nosso sistema!\n");
+            	return 0;
+            	break;
             default:
                 printf("Essa opção não está disponível!\n");
                 break;
