@@ -1,174 +1,192 @@
-#include <stdio.h> // Biblioteca de comunicação com o usuário 
-#include <stdlib.h> // Biblioteca de alocação de espaço em memória
-#include <locale.h> // Biblioteca de alocação de texto por região
-#include <string.h> // Biblioteca responsável por cuidar das strings
+#include <stdio.h>
+#include <stdlib.h>
+#include <locale.h>
+#include <string.h>
 
-// Função para registrar um novo usuário
-int registro()
-{
-    setlocale(LC_ALL, "Portuguese"); // Define a localidade para Português
-    
-    char arquivo[40];                                                      
-    char cpf[40];
-    char nome[40];
-    char sobrenome[40];
-    char cargo[40];
-    
+// FunÃ§Ã£o para registrar um novo usuÃ¡rio
+int registro() {
+    // Define a localidade para PortuguÃªs
+    setlocale(LC_ALL, "Portuguese");
+
+    // DeclaraÃ§Ã£o de variÃ¡veis para armazenar os dados do usuÃ¡rio
+    char cpf[40], nome[40], sobrenome[40], cargo[40];
+    char arquivo[50];  // VariÃ¡vel que armazenarÃ¡ o nome do arquivo (ex: "CPF.txt")
+
+    // Solicita o CPF e lÃª o valor (limitado a 39 caracteres para evitar overflow)
     printf("Digite o CPF a ser cadastrado:\n");
-    scanf("%s", cpf);
-    
-    strcpy(arquivo, cpf); // Copia o CPF para o nome do arquivo
-    
-    FILE *file; // Cria o arquivo
-    file = fopen(arquivo, "w"); // Abre o arquivo em modo de escrita
-    fprintf(file, cpf); // Escreve o CPF no arquivo
-    fclose(file); // Fecha o arquivo
-    
-    file=fopen(arquivo, "a"); // Abre o arquivo em modo de escrita (append)
-    fprintf(file, ", "); // Escreve uma vírgula no arquivo
-    fclose(file); // Fecha o arquivo
-    
+    scanf("%39s", cpf);
+
+    // Define o nome do arquivo a partir do CPF, adicionando a extensÃ£o ".txt"
+    sprintf(arquivo, "%s.txt", cpf);
+
+    // Abre o arquivo para escrita e verifica se ele foi aberto corretamente
+    FILE *file = fopen(arquivo, "w");
+    if (file == NULL) {
+        printf("Erro ao abrir o arquivo %s para escrita!\n", arquivo);
+        return -1;
+    }
+
+    // Solicita o nome do usuÃ¡rio, permitindo a entrada de espaÃ§os
     printf("Digite o nome a ser cadastrado:\n");
-    scanf("%s", nome);
-    
-    file = fopen(arquivo, "a"); // Abre o arquivo em modo de escrita (append)
-    fprintf(file, nome); // Escreve o nome no arquivo
-    fclose(file); // Fecha o arquivo
+    scanf(" %39[^\n]", nome);  // O espaÃ§o antes do formato ignora quebras de linha pendentes
 
-    file = fopen(arquivo, "a"); // Abre o arquivo em modo de escrita (append)
-    fprintf(file, " "); // Escreve um espaço no arquivo
-    fclose(file); // Fecha o arquivo
+    // Solicita o sobrenome do usuÃ¡rio
+    printf("Agora, digite o sobrenome:\n");
+    scanf(" %39[^\n]", sobrenome);
 
-    printf("Agora digite o sobrenome:\n");
-    scanf("%s", sobrenome);
-    
-    file = fopen(arquivo, "a"); // Abre o arquivo em modo de escrita (append)
-    fprintf(file, sobrenome); // Escreve o sobrenome no arquivo
-    fclose(file); // Fecha o arquivo
-    
-    file = fopen(arquivo, "a"); // Abre o arquivo em modo de escrita (append)
-    fprintf(file, ", "); // Escreve uma vírgula no arquivo
-    fclose(file); // Fecha o arquivo
-    
+    // Solicita o cargo do usuÃ¡rio
     printf("Digite o cargo:\n");
-    scanf("%s", cargo);
-    
-    file = fopen(arquivo, "a"); // Abre o arquivo em modo de escrita (append)
-    fprintf(file, cargo); // Escreve o cargo no arquivo
-    fclose(file); // Fecha o arquivo
-    
-    return 0; // Retorna 0 para indicar sucesso
+    scanf(" %39[^\n]", cargo);
+
+    // Escreve os dados no arquivo com o formato: CPF, Nome Sobrenome, Cargo
+    fprintf(file, "%s, %s %s, %s", cpf, nome, sobrenome, cargo);
+
+    // Fecha o arquivo
+    fclose(file);
+
+    printf("\nRegistro concluÃ­do com sucesso!\n");
+    return 0;
 }
 
-// Função para consultar um usuário pelo CPF
-int consulta()
-{
-    setlocale(LC_ALL, "Portuguese"); // Define a localidade para Português
-    
+// FunÃ§Ã£o para consultar os dados de um usuÃ¡rio pelo CPF
+int consulta() {
+    // Define a localidade para PortuguÃªs
+    setlocale(LC_ALL, "Portuguese");
+
     char cpf[40];
-    char conteudo[200];
-    
+    char arquivo[50];   // Nome do arquivo a ser lido (ex: "CPF.txt")
+    char conteudo[200]; // Buffer para armazenar o conteÃºdo lido
+
+    // Solicita o CPF a ser consultado
     printf("Digite o CPF a ser consultado:\n");
-    scanf("%s", cpf);
-    
-    FILE *file;
-    file = fopen(cpf, "r"); // Abre o arquivo em modo de leitura
-    
-    if (file == NULL)
-    {
-        printf("Nenhum resultado obtido, arquivo não localizado!\n");
-        return -1; // Retorna -1 para indicar falha
+    scanf("%39s", cpf);
+
+    // Define o nome do arquivo com base no CPF informado
+    sprintf(arquivo, "%s.txt", cpf);
+
+    // Abre o arquivo para leitura e verifica se ele existe
+    FILE *file = fopen(arquivo, "r");
+    if (file == NULL) {
+        printf("Nenhum resultado obtido, arquivo nÃ£o localizado!\n");
+        return -1;
     }
-    
-    while (fgets(conteudo, 100, file) !=NULL)
-    {
-        printf("Essas foram as informações obtidas sobre o usuário: ");
+
+    // Exibe o cabeÃ§alho da consulta
+    printf("\nEssas foram as informaÃ§Ãµes obtidas sobre o usuÃ¡rio:\n");
+
+    // LÃª e exibe o conteÃºdo do arquivo linha a linha
+    while (fgets(conteudo, sizeof(conteudo), file) != NULL) {
         printf("%s", conteudo);
-        printf("\n\n");
     }
-    
-    fclose(file); // Fecha o arquivo
-    
+    printf("\n");
+
+    // Fecha o arquivo
+    fclose(file);
+
+    return 0;
 }
 
-// Função para deletar um usuário pelo CPF
-int deletar()
-{
+// FunÃ§Ã£o para deletar um usuÃ¡rio pelo CPF
+int deletar() {
     char cpf[40];
-    
-    printf("ATENÇÃO\nVocê deseja mesmo continuar?\n");
+    char arquivo[50];
+
+    // Exibe mensagem de atenÃ§Ã£o e aguarda confirmaÃ§Ã£o do usuÃ¡rio
+    printf("ATENÃ‡ÃƒO\nVocÃª deseja mesmo continuar?\n");
+#ifdef _WIN32
     system("pause");
-    
-    printf("Digite o CPF a ser excluído:");
-    scanf("%s", cpf);
-    
-    FILE *file;
-    file = fopen(cpf, "r"); // Abre o arquivo em modo de leitura
-    
-    if(file == NULL)
-    {
+#else
+    printf("Pressione ENTER para continuar...");
+    while (getchar() != '\n'); // Limpa o buffer
+    getchar();                // Aguarda o usuÃ¡rio pressionar ENTER
+#endif
+
+    // Solicita o CPF a ser deletado
+    printf("Digite o CPF a ser excluÃ­do:\n");
+    scanf("%39s", cpf);
+
+    // Define o nome do arquivo com base no CPF informado
+    sprintf(arquivo, "%s.txt", cpf);
+
+    // Verifica se o arquivo existe tentando abri-lo para leitura
+    FILE *file = fopen(arquivo, "r");
+    if (file == NULL) {
         printf("Nenhum dado encontrado!\n");
-        
+        return -1;
     }
-    
-    fclose(file); // Fecha o arquivo
-    
-    remove(cpf); // Remove o arquivo
-    printf("\nCPF deletado com sucesso!\n");
-    
+    fclose(file);
+
+    // Tenta remover o arquivo e verifica se a remoÃ§Ã£o foi bem-sucedida
+    if (remove(arquivo) == 0) {
+        printf("\nCPF deletado com sucesso!\n");
+    } else {
+        printf("\nErro ao deletar o CPF!\n");
+        return -1;
+    }
+
+    return 0;
 }
 
-// Função principal
-int main()
-{        
-    int opcao = 0; // Define a variável de opção
-    int rep = 1; // Define a variável de repetição
-    
-    setlocale(LC_ALL, "Portuguese"); // Define a localidade para Português
-    
-    // Loop principal
-    for (rep = 1; rep == 1; )
-    {
-        system("cls"); // Limpa a tela
-        
-        printf("\tCartório da EBAC\n\n");
-        printf("Escolha a opção que você deseja:\n\n");
-        printf("\t1- Registro de nomes\n");
-        printf("\t2- Consulta de nomes\n");
-        printf("\t3- Deletar nomes\n");
-        printf("\t4- Sair do sistema\n\n");
-        printf("Digite a opção desejada: ");
-        
-        scanf("%d", &opcao); // Lê a opção do usuário
-        
-        system("cls"); // Limpa a tela
-        
-        switch(opcao) // Realiza ações baseadas na opção escolhida
-        {
+// FunÃ§Ã£o principal
+int main() {
+    // Define a localidade para PortuguÃªs
+    setlocale(LC_ALL, "Portuguese");
+
+    int opcao;
+
+    // Loop principal do programa
+    while (1) {
+        // Limpa a tela de acordo com o sistema operacional
+#ifdef _WIN32
+        system("cls");
+#else
+        system("clear");
+#endif
+
+        // Exibe o menu principal
+        printf("\tCartÃ³rio da EBAC\n\n");
+        printf("Escolha a opÃ§Ã£o que vocÃª deseja:\n\n");
+        printf("\t1 - Registro de nomes\n");
+        printf("\t2 - Consulta de nomes\n");
+        printf("\t3 - Deletar nomes\n");
+        printf("\t4 - Sair do sistema\n\n");
+        printf("Digite a opÃ§Ã£o desejada: ");
+
+        // LÃª a opÃ§Ã£o do usuÃ¡rio e verifica se a entrada Ã© vÃ¡lida
+        if (scanf("%d", &opcao) != 1) {
+            // Caso a entrada seja invÃ¡lida, limpa o buffer e continua o loop
+            printf("Entrada invÃ¡lida!\n");
+            while (getchar() != '\n');  // Limpa o buffer de entrada
+            continue;
+        }
+
+        // Processa a opÃ§Ã£o escolhida utilizando um switch-case
+        switch (opcao) {
             case 1:
-                printf("Você escolheu registro de nomes!\n");
-                registro(); // Chama a função de registro
+                printf("\nVocÃª escolheu registro de nomes!\n");
+                registro();
                 break;
             case 2:
-                printf("Você selecionou a consulta de nomes!\n");
-                consulta(); // Chama a função de consulta
+                printf("\nVocÃª selecionou a consulta de nomes!\n");
+                consulta();
                 break;
             case 3:
-                printf("Você selecionou a opção de deletar nomes!\n");
-                deletar(); // Chama a função de deletar
+                printf("\nVocÃª selecionou a opÃ§Ã£o de deletar nomes!\n");
+                deletar();
                 break;
             case 4:
-            	printf("Obrigado por ultilizar o nosso sistema!\n");
-            	return 0;
-            	break;
+                printf("\nObrigado por utilizar o nosso sistema!\n");
+                return 0;
             default:
-                printf("Essa opção não está disponível!\n");
+                printf("\nEssa opÃ§Ã£o nÃ£o estÃ¡ disponÃ­vel!\n");
                 break;
         }
-        
-        
+
+        // Pausa para que o usuÃ¡rio possa visualizar o resultado da operaÃ§Ã£o
+        printf("\nPressione ENTER para continuar...");
+        while (getchar() != '\n'); // Limpa o buffer de entrada
+        getchar();                // Aguarda o usuÃ¡rio pressionar ENTER
     }
 
-    return 0; // Indica que o programa terminou sem erros
+    return 0;
 }
-
